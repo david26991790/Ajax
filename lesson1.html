@@ -1,107 +1,64 @@
-let sarea_array = []
-let sareaElement =  document.getElementById('sarea');
-let areaNameElement = document.getElementById('areaName')
-let tbodyElement = document.getElementById('tbody')
-let dialogElement = document.getElementById('dialog')
-let mapElement = document.getElementById('map')
-let exitElement = document.getElementById('exit')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" />
+    <title>Document</title>
+</head>
+<body>
+    <form method="post">
+        <fieldset>
+            <legend>行政區</legend>
+            <select id='sarea' autofocus>
+                
+            </select>
+        </fieldset>
+    </form>
 
-let youbikedata;
+    <h2 id="areaName">行政區名稱</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>站點名稱</th>
+                <th>地址</th>
+                <th>車輛數</th>
+                <th>可借</th>
+                <th>可還</th>
+                <th>時間</th>
+                <th>狀態</th>
+                <th>資訊</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <tr>
+                <td>YouBike2.0_捷運科技大樓站</td>
+                <td>復興南路二段235號前</td>
+                <td>28</td>
+                <td>2</td>
+                <td>25</td>
+                <td>時間</td>
+                <td>營業中</td>
+                <td><a href="#">更多</a></td>
+            </tr>
+        </tbody>
+    </table>
 
-//下拉式選單被選取
-sareaElement.addEventListener('change', (event) => {
-    let selectedIndex = sareaElement.selectedIndex;
-    selectedValue=sareaElement.options[selectedIndex].value
-    if(sarea_array.includes(selectedValue)){
-        //console.log(`行政區:${selectedValue}`)
-        areaNameElement.innerText = selectedValue
-        let trHTML = "" //行政區內的html資訊
-        youbikedata.forEach(element => {           
-            if (element.sarea == selectedValue){
-                if (element.act == "1"){
-                    var status = "營業中"
-                }else{
-                    var status = "維護中"
-                }
+    <dialog id="dialog">
+        <p>網頁正在維護中....</p>
+        <form method="dialog">
+            <button>OK</button>
+        </form>
+    </dialog>
 
-                trHTML += "<tr>"
-                trHTML += "<td>" + element.sna.slice(11) +"</td>"
-                trHTML += "<td>" + element.ar +"</td>"
-                trHTML += "<td>" + element.tot +"</td>"
-                trHTML += "<td>" + element.sbi +"</td>"
-                trHTML += "<td>" + element.bemp +"</td>"
-                trHTML += "<td>" + element.updateTime + "</td>"
-                trHTML += "<td>" + status +"</td>"
-                trHTML += `<td><a class="map" href="#" data-sno=${element.sno}>更多</a></td>`
-                trHTML += "</tr>"
-            }
+    <div class="close" id="map">  
+        <input type="button" value="離開" id="exit">
+    </div>
+    
+<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>  
+<script src="js/lesson1.js"></script>
 
-        });         
-        tbodyElement.innerHTML = trHTML
-        //取得所有的a元素
-        //a元素加入click事件
-        //取出a元素的data-sno的屬性值
-        //跳出<div class="map">對話欄
-        let aElements = document.querySelectorAll('.map')
-        aElements.forEach((element)=>{
-            element.addEventListener('click',(event)=>{
-                event.preventDefault()
-                let aElement = event.currentTarget
-                //console.log(aElement.dataset.sno)
-                mapElement.className = 'overlay'
-                youbikedata.forEach(site=>{
-                    if (site.sno == aElement.dataset.sno){
-                        open('https://www.google.com/maps/place/'+ site.lat +','+site.lng)
-                    }
-                })
-            })
-        })
-    }
-});
-
-//xmlhttpRequest的listener
-function reqListener() {    
-    youbikedata = JSON.parse(this.responseText)    
-    for(const youbike of youbikedata){
-        sarea_array.push(youbike.sarea)    
-    }
-    sarea_array = [...new Set(sarea_array)]
-    let optionElement = document.createElement('option')
-    optionElement.textContent = '請選擇行政區'
-    sareaElement.appendChild(optionElement)
-    for(const area of sarea_array){
-        let optionElement = document.createElement('option')
-        optionElement.textContent = area
-        optionElement.setAttribute('value',area)
-        sareaElement.appendChild(optionElement)
-    }
-}
-
-//監聽下載完成的http status
-function reqReadyChange(){
-    if(this.readyState == 4){
-        if(this.status != 200){
-            dialogElement.show()        
-        }
-    }
-}
-
-//window被載入的事件
-const windowload = (event) => {
-    console.log('網頁已經全部被載入');    
-    const req = new XMLHttpRequest();
-    req.addEventListener("load", reqListener);
-    req.addEventListener("readystatechange",reqReadyChange)
-    req.open("GET", "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json");
-    /*模擬錯誤的網頁*/
-    //req.open("GET", "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v1/youbike_immediate.json");
-    req.send();
-}
-
-window.addEventListener('load', windowload)
-
-//map內的離開的click事件
-exitElement.addEventListener('click',(event)=>{
-    mapElement.className = 'close'
-})
-
+</body>
+</html>
